@@ -8,6 +8,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import i7.Controllers.*;
+import i7.Views.*;
+
 /**
  * JavaFX App
  */
@@ -17,8 +20,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
-        stage.setScene(scene);
+        MainView view = new MainView();
+        MainController controller = new MainController(view);
+        stage.setScene(new Scene(view.getView(), 640, 480));
         stage.show();
     }
 
