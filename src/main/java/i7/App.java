@@ -20,6 +20,8 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        Genie genie = Genie.getInstance();
+        genie.connectToMongodb();
         MainView view = new MainView();
         MainController controller = new MainController(view);
         stage.setTitle("Pesato");
