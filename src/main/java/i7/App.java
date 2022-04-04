@@ -22,6 +22,7 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         MainView view = new MainView();
         MainController controller = new MainController(view);
+        stage.setTitle("Pesato");
         stage.setScene(new Scene(view.getView(), 640, 480));
         stage.show();
     }

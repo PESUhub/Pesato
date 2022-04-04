@@ -6,6 +6,6 @@ module i7 {
     opens i7 to javafx.fxml;
     opens i7.Controllers to javafx.fxml;
     opens i7.Views to javafx.fxml;
-    opens i7.Models to javafx.base;
+    //opens i7.Models to javafx.base;
     exports i7;
 }
