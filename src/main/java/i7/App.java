@@ -23,7 +23,7 @@ public class App extends Application {
         Genie genie = Genie.getInstance();
         genie.connectToMongodb();
         MainView view = new MainView();
-        MainController controller = new MainController(view);
+        MainController controller = new MainController(view,  stage, genie);
         stage.setTitle("Pesato");
         stage.setScene(new Scene(view.getView(), 640, 480));
         stage.show();

@@ -22,8 +22,11 @@ import static com.mongodb.client.model.Updates.*;
 
 public class Genie {
     private static Genie instance = new Genie();
+    private MongoClient mongoClient;
+    private MongoDatabase database;
 
     private Genie() {
+        connectToMongodb();
 
     }
 
@@ -32,11 +35,24 @@ public class Genie {
     }
 
     public void connectToMongodb() {
-        MongoClient mongoClient = MongoClients.create();
+        mongoClient = MongoClients.create();
         //list databases
         MongoIterable<String> dbNames = mongoClient.listDatabaseNames();
         for (String dbName : dbNames) {
             System.out.println(dbName);
         }
+        database = mongoClient.getDatabase("pesato");
+    }
+
+    public Boolean verifyLogin(String username, String password) {
+        MongoCollection<Document> collection = database.getCollection("customers");
+        Document doc = collection.find(eq("username", username)).first();
+        if (doc == null) {
+            return false;
+        }
+        if (doc.getString("password").equals(password)) {
+            return true;
+        }
+        return false;
     }
 }
