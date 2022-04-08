@@ -11,6 +11,8 @@ public class MainView {
     public TextField username;
     public TextField password;
     public Button loginButton;
+    public Button signupButton;
+    public Button resetButton;
 
     public MainView() {
         view = createView();
@@ -27,6 +29,8 @@ public class MainView {
         vBox.getChildren().add(new Label("Password"));
         vBox.getChildren().add(password = new TextField());
         vBox.getChildren().add(loginButton = new Button("Login"));
+        vBox.getChildren().add(signupButton = new Button("Sign up"));
+        vBox.getChildren().add(signupButton = new Button("Reset"));
         
         return vBox;
     }
