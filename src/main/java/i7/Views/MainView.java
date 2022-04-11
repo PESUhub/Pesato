@@ -30,7 +30,7 @@ public class MainView {
         vBox.getChildren().add(password = new TextField());
         vBox.getChildren().add(loginButton = new Button("Login"));
         vBox.getChildren().add(signupButton = new Button("Sign up"));
-        vBox.getChildren().add(resetButton= new Button("Reset"));
+        vBox.getChildren().add(resetButton= new Button("send Reset to genie"));
         
         return vBox;
     }

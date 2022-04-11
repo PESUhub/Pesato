@@ -84,12 +84,14 @@ public class MainController {
                 String u = signupView.username.getText();
                 String p = signupView.password.getText();
                 String userType = ((javafx.scene.control.RadioButton) signupView.userTypeGroup.getSelectedToggle()).getText().toUpperCase();
-                System.out.println(userType);
 
                 Boolean verify = genie.signupUser(u, p, UserType.valueOf(userType));
 
                 if (verify) {
                     genie.showPopup("Success", "User " + u + " has been created. You may now close the signup window", "close");
+                }
+                else {
+                    genie.showPopup("Error", "User " + u + " already exists", "close");
                 }
             }
         });
