@@ -6,13 +6,13 @@ import java.util.Locale;
 import java.util.Map;
 
 public abstract class User {
-    public UserType type;
-    public String username;
-    public String password;
-    public String email;
-    public String phone;
-    public String address;
-    public Wallet wallet;
+    private UserType type;
+    private String username;
+    private String password;
+    private String email;
+    private String phone;
+    private String address;
+    private Wallet wallet;
 
     public User(UserType type, String username, String password, String email, String phone, String address, double balance) {
         this.username = username;
@@ -44,5 +44,33 @@ public abstract class User {
         document.put("address", this.address);
         document.put("wallet", this.wallet.toDocument());
         return document;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public String getAddress() {
+        return this.address;
+    }
+
+    public UserType getType() {
+        return this.type;
+    }
+
+    public Wallet getWallet() {
+        return this.wallet;
     }
 }
