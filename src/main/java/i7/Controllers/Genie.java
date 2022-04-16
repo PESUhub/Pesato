@@ -10,6 +10,7 @@ import com.mongodb.client.model.Filters;
 
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.*;
+import i7.Models.MenuItem;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -21,9 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
@@ -44,8 +43,6 @@ public class Genie {
 
     public void connectToMongodb() {
         mongoClient = MongoClients.create();
-        //list databases
-        //MongoIterable<String> dbNames = mongoClient.listDatabaseNames();
         database = mongoClient.getDatabase("pesato");
     }
 
@@ -54,13 +51,12 @@ public class Genie {
         connectToMongodb();
     }
 
-    public Boolean signupUser(String username, String password, UserType Type) {
+    public Boolean signupUser(User user) {
         MongoCollection<Document> collection = database.getCollection("users");
-        if (collection.find(eq("username", username)).first() != null) {
+        if (collection.find(eq("username", user.username)).first() != null) {
             return false;
         }
-        Document doc = new Document("username", username).append("password", password).append("type", Type.toString());
-        collection.insertOne(doc);
+        collection.insertOne(new Document(user.toDocument()));
         return true;
     }
 
@@ -71,13 +67,13 @@ public class Genie {
             return null;
         }
         if (doc.getString("password").equals(password)) {
-            UserType type = UserType.valueOf(doc.getString("type"));
+            UserType type = UserType.valueOf(doc.getString("type").toUpperCase(Locale.ROOT));
             if (type == UserType.CUSTOMER) {
-                return new Customer(doc.getString("username"), doc.getString("password"));
+                return new Customer(doc);
             } else if (type == UserType.RESTAURANT) {
-                return new Restaurant(doc.getString("username"), doc.getString("password"));
+                return new Restaurant(doc);
             } else if (type == UserType.DA) {
-                return new DA(doc.getString("username"), doc.getString("password"));
+                return new DA(doc);
             } else {
                 return null;
             }
@@ -102,5 +98,31 @@ public class Genie {
 
         popupWindow.setScene(scene1);
         popupWindow.showAndWait();
+    }
+
+    /*public Boolean insertMenuItemInRestaurant(MenuItem menuItem, String restaurantName) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        Document doc = collection.find(eq("username", restaurantName)).first();
+        if (doc == null) {
+            return false;
+        }
+        //doc.get("menuItems", Map.class).put(menuItem.getName(), menuItem.toDocument());
+        collection.updateOne(eq("username", restaurantName), new Document("$push", new Document("menuItems", menuItem.toDocument())));
+        System.out.println(doc.get("menuItems", Map.class));
+        return true;
+    }*/
+
+    public Boolean updateMenuItemsInRestaurant(Map<String, Map<String, Object>> menuItems, String restaurantName) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        Document doc = collection.find(eq("username", restaurantName)).first();
+        if (doc == null) {
+            return false;
+        }
+        collection.updateOne(eq("username", restaurantName), new Document("$set", new Document("menuItems", menuItems)));
+        return true;
+    }
+
+    public Boolean addMenuItem(MenuItem item) {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
     }
 }
