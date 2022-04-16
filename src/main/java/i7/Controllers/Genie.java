@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.print.Doc;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
@@ -131,7 +132,11 @@ public class Genie {
 
     public int getNextMenuItemId() {
         MongoCollection<Document> collection = database.getCollection("menuitems");
-        return (collection.find().sort(new Document("id", -1)).limit(1).first().getInteger("id") + 1);
+        Document max = collection.find().sort(new Document("id", -1)).limit(1).first();
+        if (max == null) {
+            return 1;
+        }
+        return (max.getInteger("id") + 1);
     }
 
     public HashMap<Integer, MenuItem> getMenuItems(String restaurantName) {
@@ -164,25 +169,31 @@ public class Genie {
             collection.find(eq("restaurantName", restaurantName)).into(new ArrayList<>()).forEach((item) -> menuItems.add(new MenuItem(item)));
         } catch (Exception e) {
             Genie g = Genie.getInstance();
-            g.showPopup("Error", "Error loading menu items. Contact Dev.", "close");
+            g.showPopup("Error", "Error loading menu items. Contact Dev." + e, "close");
         }
         return menuItems;
     }
 
-    public void updateMenuItem(MenuItem item) {
+    public Boolean updateMenuItem(MenuItem item) {
         MongoCollection<Document> collection = database.getCollection("menuitems");
         collection.replaceOne(eq("id", item.getId()), new Document(item.toDocument()));
+        return true;
     }
 
-    public void deleteMenuItem(int id) {
+    public Boolean removeMenuItem(int id) {
         MongoCollection<Document> collection = database.getCollection("menuitems");
         collection.deleteOne(eq("id", id));
+        return true;
     }
 
 
     public int getNextCartId() {
         MongoCollection<Document> collection = database.getCollection("carts");
-        return (collection.find().sort(new Document("id", -1)).limit(1).first().getInteger("id") + 1);
+        Document max = collection.find().sort(new Document("id", -1)).limit(1).first();
+        if (max == null) {
+            return 1;
+        }
+        return (max.getInteger("id") + 1);
     }
 
     public void addCart(Cart cart) {
@@ -201,7 +212,11 @@ public class Genie {
 
     public int getNextOrderId() {
         MongoCollection<Document> collection = database.getCollection("orders");
-        return (collection.find().sort(new Document("id", -1)).limit(1).first().getInteger("id") + 1);
+        Document max = collection.find().sort(new Document("id", -1)).limit(1).first();
+        if (max == null) {
+            return 1;
+        }
+        return (max.getInteger("id") + 1);
     }
 
     public String assignDA() {

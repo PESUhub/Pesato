@@ -12,11 +12,13 @@ import i7.Views.*;
 
 
 public class CustomerController extends UserController {
+
+    private Customer customer;
     
     public CustomerController(Customer user, CustomerView view, Stage stage) {
         setView(view);
         this.stage = stage;
-        this.user = user;
+        this.customer = user;
     }
 
     private void setView(CustomerView view) {

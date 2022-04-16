@@ -1,6 +1,9 @@
 package i7.Models;
 
 import i7.Controllers.Genie;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -10,21 +13,23 @@ import java.util.Map;
 public class Restaurant extends User {
     private String cuisine;
     private int rating;
-    private ArrayList<MenuItem> menuItems;
+    private Genie genie;
+    private ObservableList<MenuItem> menuItems;
 
     public Restaurant(String username, String password, String email, String phone, String address, double balance, String cuisine, int rating) {
         super(UserType.RESTAURANT, username, password, email, phone, address, balance);
         this.cuisine = cuisine;
         this.rating = rating;
-        this.menuItems = new ArrayList<>();
     }
 
     public Restaurant(Document document) {
         super(document);
         this.cuisine = document.getString("cuisine");
         this.rating = document.getInteger("rating");
-        Genie g = Genie.getInstance();
-        this.menuItems = g.getMenuItemsFromRestaurant(this.getUsername());
+        this.menuItems = FXCollections.observableArrayList();
+        this.genie = Genie.getInstance();
+
+        updateMenuItems();
     }
 
     public Map<String, Object> toDocument() {
@@ -50,7 +55,24 @@ public class Restaurant extends User {
         this.rating = rating;
     }
 
-    public ArrayList<MenuItem> getMenuItems() {
+    private void updateMenuItems() {
+        menuItems.clear();
+        menuItems.addAll((genie.getMenuItemsFromRestaurant(this.getUsername())));
+    }
+
+    public ObservableList<MenuItem> getMenuItemsObservableList() {
         return menuItems;
+    }
+
+    public Boolean addMenuItem(MenuItem menuItem) {
+        Boolean result = genie.addMenuItem(menuItem);
+        updateMenuItems();
+        return result;
+    }
+
+    public Boolean removeMenuItem(MenuItem menuItem) {
+        Boolean result = genie.removeMenuItem(menuItem.getId());
+        updateMenuItems();
+        return result;
     }
 }
