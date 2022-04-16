@@ -1,16 +1,14 @@
 package i7.Controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.swing.text.View;
-
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
+import java.util.HashMap;
+
+import i7.Models.*;
+import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import i7.Models.UserType;
+import javafx.stage.WindowEvent;
 import i7.Views.*;
 
 public class MainController {
@@ -21,7 +19,7 @@ public class MainController {
     MainView view;
     SignupView signupView;
 
-    ArrayList<CustomerController> customerControllers = new ArrayList<CustomerController>();
+    HashMap<String, UserController> userControllers = new HashMap<>();
 
     public MainController(Stage stage, Scene scene, MainView view, Genie genie) {
         this.stage = stage;
@@ -38,18 +36,45 @@ public class MainController {
                 String u = view.username.getText();
                 String p = view.password.getText();
 
-                UserType userType = genie.verifyLogin(u, p);
-                
-                if (userType == UserType.CUSTOMER) {
-                    Stage newWindow = new Stage();
-                    CustomerView customerView = new CustomerView();
-                    CustomerController customerController = new CustomerController(customerView, newWindow);
-                    customerControllers.add(customerController);
-                    newWindow.setTitle("Customer: Welcome " + u);
-                    newWindow.setScene(new Scene(customerView.getView(), 800, 800));
-                    newWindow.show();
-                } else {
-                    genie.showPopup("Invalid Login", "Username or password is incorrect", "close");
+                User user = genie.verifyLogin(u, p);
+
+                if (user != null) {
+                    if (userControllers.containsKey(user.username)) {
+                        genie.showPopup("Error", "You are already logged in!", "OK");
+                    }
+                    else {
+                        Stage newWindow = new Stage();
+                        newWindow.onCloseRequestProperty().set(event1 -> userControllers.remove(user.username));
+                        if (user.type == UserType.CUSTOMER) {
+                            CustomerView customerView = new CustomerView();
+                            CustomerController customerController = new CustomerController((Customer) user, customerView, newWindow);
+                            userControllers.put(user.username, customerController);
+                            newWindow.setTitle("Customer: Welcome " + u);
+                            newWindow.setScene(new Scene(customerView.getView(), 800, 800));
+                            newWindow.show();
+                        }
+                        else if (user.type == UserType.RESTAURANT) {
+                            RestaurantView restaurantView = new RestaurantView();
+                            RestaurantController restaurantController = new RestaurantController((Restaurant) user, restaurantView, newWindow);
+                            userControllers.put(user.username, restaurantController);
+                            newWindow.setTitle("Restaurant: Welcome " + u);
+                            newWindow.setScene(new Scene(restaurantView.getView(), 800, 800));
+                            newWindow.show();
+                        }
+                        else if (user.type == UserType.DA) {
+                            DAView daView = new DAView();
+                            DAController daController = new DAController((DA) user, daView, newWindow);
+                            userControllers.put(user.username, daController);
+                            newWindow.setTitle("DA: Welcome " + u);
+                            newWindow.setScene(new Scene(daView.getView(), 800, 800));
+                            newWindow.show();
+                        } else {
+                            genie.showPopup("Error", "Invalid user type! Contact Dev", "OK");
+                        }
+                    }
+                }
+                else {
+                    genie.showPopup("Error", "Invalid username or password!", "OK");
                 }
             }
         });

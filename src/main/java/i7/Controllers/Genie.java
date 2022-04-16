@@ -13,7 +13,7 @@ import com.mongodb.client.result.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import i7.Models.UserType;
+import i7.Models.*;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -64,14 +64,23 @@ public class Genie {
         return true;
     }
 
-    public UserType verifyLogin(String username, String password) {
+    public User verifyLogin(String username, String password) {
         MongoCollection<Document> collection = database.getCollection("users");
         Document doc = collection.find(eq("username", username)).first();
         if (doc == null) {
             return null;
         }
         if (doc.getString("password").equals(password)) {
-            return UserType.valueOf(doc.getString("type"));
+            UserType type = UserType.valueOf(doc.getString("type"));
+            if (type == UserType.CUSTOMER) {
+                return new Customer(doc.getString("username"), doc.getString("password"));
+            } else if (type == UserType.RESTAURANT) {
+                return new Restaurant(doc.getString("username"), doc.getString("password"));
+            } else if (type == UserType.DA) {
+                return new DA(doc.getString("username"), doc.getString("password"));
+            } else {
+                return null;
+            }
         }
         return null;
     }
@@ -89,7 +98,7 @@ public class Genie {
         layout.getChildren().addAll(label1, button1);
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene1= new Scene(layout, 300, 250);
+        Scene scene1= new Scene(layout, 500, 250);
 
         popupWindow.setScene(scene1);
         popupWindow.showAndWait();

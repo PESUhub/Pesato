@@ -1,25 +1,21 @@
 package i7.Controllers;
 
-
-import java.io.IOException;
-
-import i7.Models.Customer;
+import i7.Models.Restaurant;
+import i7.Views.CustomerView;
+import i7.Views.RestaurantView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.stage.Stage;
-import i7.Views.*;
 
+public class RestaurantController extends UserController {
 
-public class CustomerController extends UserController {
-    
-    public CustomerController(Customer user, CustomerView view, Stage stage) {
+    public RestaurantController(Restaurant user, RestaurantView view, Stage stage) {
         setView(view);
         this.stage = stage;
         this.user = user;
     }
 
-    private void setView(CustomerView view) {
+    private void setView(RestaurantView view) {
         view.logoutButton.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
