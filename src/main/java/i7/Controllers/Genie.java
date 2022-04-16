@@ -53,7 +53,7 @@ public class Genie {
 
     public Boolean signupUser(User user) {
         MongoCollection<Document> collection = database.getCollection("users");
-        if (collection.find(eq("username", user.username)).first() != null) {
+        if (collection.find(eq("username", user.getUsername())).first() != null) {
             return false;
         }
         collection.insertOne(new Document(user.toDocument()));
@@ -100,29 +100,133 @@ public class Genie {
         popupWindow.showAndWait();
     }
 
-    /*public Boolean insertMenuItemInRestaurant(MenuItem menuItem, String restaurantName) {
+    public User getUser(String username) {
         MongoCollection<Document> collection = database.getCollection("users");
-        Document doc = collection.find(eq("username", restaurantName)).first();
+        Document doc = collection.find(eq("username", username)).first();
         if (doc == null) {
-            return false;
+            return null;
         }
-        //doc.get("menuItems", Map.class).put(menuItem.getName(), menuItem.toDocument());
-        collection.updateOne(eq("username", restaurantName), new Document("$push", new Document("menuItems", menuItem.toDocument())));
-        System.out.println(doc.get("menuItems", Map.class));
-        return true;
-    }*/
+        UserType type = UserType.valueOf(doc.getString("type").toUpperCase(Locale.ROOT));
+        if (type == UserType.CUSTOMER) {
+            return new Customer(doc);
+        } else if (type == UserType.RESTAURANT) {
+            return new Restaurant(doc);
+        } else if (type == UserType.DA) {
+            return new DA(doc);
+        } else {
+            return null;
+        }
+    }
 
-    public Boolean updateMenuItemsInRestaurant(Map<String, Map<String, Object>> menuItems, String restaurantName) {
+    public void updateUser(User user) {
         MongoCollection<Document> collection = database.getCollection("users");
-        Document doc = collection.find(eq("username", restaurantName)).first();
-        if (doc == null) {
-            return false;
-        }
-        collection.updateOne(eq("username", restaurantName), new Document("$set", new Document("menuItems", menuItems)));
-        return true;
+        collection.replaceOne(eq("username", user.getUsername()), new Document(user.toDocument()));
     }
 
     public Boolean addMenuItem(MenuItem item) {
         MongoCollection<Document> collection = database.getCollection("menuitems");
+        collection.insertOne(new Document(item.toDocument()));
+        return true;
     }
+
+    public int getNextMenuItemId() {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
+        return (collection.find().sort(new Document("id", -1)).limit(1).first().getInteger("id") + 1);
+    }
+
+    public HashMap<Integer, MenuItem> getMenuItems(String restaurantName) {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
+
+        HashMap<Integer, MenuItem> menuItems = new HashMap<>();
+        try {
+            collection.find(eq("restaurantName", restaurantName)).into(new ArrayList<>()).forEach((item) -> menuItems.put(item.getInteger("id"), new MenuItem(item)));
+        } catch (Exception e) {
+            Genie g = Genie.getInstance();
+            g.showPopup("Error", "Error loading menu items. Contact Dev.", "close");
+        }
+
+        return menuItems;
+    }
+
+    public MenuItem getMenuItem(int id) {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
+        Document doc = collection.find(eq("id", id)).first();
+        if (doc == null) {
+            return null;
+        }
+        return new MenuItem(doc);
+    }
+
+    public ArrayList<MenuItem> getMenuItemsFromRestaurant(String restaurantName) {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
+        ArrayList<MenuItem> menuItems = new ArrayList<>();
+        try {
+            collection.find(eq("restaurantName", restaurantName)).into(new ArrayList<>()).forEach((item) -> menuItems.add(new MenuItem(item)));
+        } catch (Exception e) {
+            Genie g = Genie.getInstance();
+            g.showPopup("Error", "Error loading menu items. Contact Dev.", "close");
+        }
+        return menuItems;
+    }
+
+    public void updateMenuItem(MenuItem item) {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
+        collection.replaceOne(eq("id", item.getId()), new Document(item.toDocument()));
+    }
+
+    public void deleteMenuItem(int id) {
+        MongoCollection<Document> collection = database.getCollection("menuitems");
+        collection.deleteOne(eq("id", id));
+    }
+
+
+    public int getNextCartId() {
+        MongoCollection<Document> collection = database.getCollection("carts");
+        return (collection.find().sort(new Document("id", -1)).limit(1).first().getInteger("id") + 1);
+    }
+
+    public void addCart(Cart cart) {
+        MongoCollection<Document> collection = database.getCollection("carts");
+        collection.insertOne(new Document(cart.toDocument()));
+    }
+
+    public Cart getCart(int id) {
+        MongoCollection<Document> collection = database.getCollection("carts");
+        Document doc = collection.find(eq("id", id)).first();
+        if (doc == null) {
+            return null;
+        }
+        return new Cart(doc);
+    }
+
+    public int getNextOrderId() {
+        MongoCollection<Document> collection = database.getCollection("orders");
+        return (collection.find().sort(new Document("id", -1)).limit(1).first().getInteger("id") + 1);
+    }
+
+    public String assignDA() {
+        MongoCollection<Document> collection = database.getCollection("users");
+        Document doc = collection.find(eq("occupied", false)).first();
+        if (doc == null) {
+            return null;
+        }
+        DA da = new DA(doc);
+        String username = da.assignJob();
+        return username;
+    }
+
+    public void setDAOccupancy(String username, Boolean occupied) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        collection.updateOne(eq("username", username), new Document("$set", new Document("occupied", occupied)));
+    }
+
+    public Wallet getWallet(String username) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        Document doc = collection.find(eq("username", username)).first();
+        if (doc == null) {
+            return null;
+        }
+        return new Wallet(doc);
+    }
+
 }

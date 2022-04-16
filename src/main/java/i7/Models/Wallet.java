@@ -20,10 +20,6 @@ public class Wallet {
         return balance;
     }
 
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
-
     public void addBalance(Double balance) {
         this.balance += balance;
     }
@@ -36,7 +32,7 @@ public class Wallet {
         return false;
     }
 
-    public Boolean transferBalance(Wallet wallet, Double balance) {
+    public Boolean transferBalanceTo(Wallet wallet, Double balance) {
         Boolean status = this.subtractBalance(balance);
         if (status) {
             wallet.addBalance(balance);

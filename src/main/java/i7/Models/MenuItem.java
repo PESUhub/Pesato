@@ -1,5 +1,6 @@
 package i7.Models;
 
+import i7.Controllers.Genie;
 import org.bson.Document;
 
 import java.util.Map;
@@ -13,8 +14,9 @@ public class MenuItem {
     private int rating;
     private Boolean veg;
 
-    public MenuItem(int id, String restaurantName, String name, String description, Double price, int rating, Boolean veg) {
-        this.id = id;
+    public MenuItem(String restaurantName, String name, String description, Double price, int rating, Boolean veg) {
+        Genie g = Genie.getInstance();
+        this.id = g.getNextMenuItemId();
         this.restaurantName = restaurantName;
         this.name = name;
         this.description = description;
