@@ -5,5 +5,4 @@ import javafx.stage.Stage;
 
 public abstract class UserController {
     Stage stage;
-    User user;
 }

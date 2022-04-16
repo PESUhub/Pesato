@@ -10,9 +10,9 @@ public class MenuItem {
     private String restaurantName;
     private String name;
     private String description;
-    private Double price;
+    private double price;
     private int rating;
-    private Boolean veg;
+    private Boolean Veg;
 
     public MenuItem(String restaurantName, String name, String description, Double price, int rating, Boolean veg) {
         Genie g = Genie.getInstance();
@@ -22,7 +22,7 @@ public class MenuItem {
         this.description = description;
         this.price = price;
         this.rating = rating;
-        this.veg = veg;
+        this.Veg = veg;
     }
 
     public MenuItem(Document document) {
@@ -32,7 +32,7 @@ public class MenuItem {
         this.description = document.getString("description");
         this.price = document.getDouble("price");
         this.rating = document.getInteger("rating");
-        this.veg = document.getBoolean("veg");
+        this.Veg = document.getBoolean("veg");
     }
 
     public Map<String, Object> toDocument() {
@@ -43,7 +43,7 @@ public class MenuItem {
         menuItem.put("description", this.description);
         menuItem.put("price", this.price);
         menuItem.put("rating", this.rating);
-        menuItem.put("veg", this.veg);
+        menuItem.put("veg", this.Veg);
         return menuItem;
     }
 
@@ -72,26 +72,36 @@ public class MenuItem {
     }
 
     public Boolean getVeg() {
-        return veg;
+        return Veg;
+    }
+
+    private void updateMenuItem() {
+        Genie g = Genie.getInstance();
+        g.updateMenuItem(this);
     }
 
     public void setName(String name) {
         this.name = name;
+        updateMenuItem();
     }
 
     public void setDescription(String description) {
         this.description = description;
+        updateMenuItem();
     }
 
     public void setPrice(Double price) {
         this.price = price;
+        updateMenuItem();
     }
 
     public void setRating(int rating) {
         this.rating = rating;
+        updateMenuItem();
     }
 
     public void setVeg(Boolean veg) {
-        this.veg = veg;
+        this.Veg = veg;
+        updateMenuItem();
     }
 }

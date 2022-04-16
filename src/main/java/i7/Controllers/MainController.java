@@ -39,32 +39,32 @@ public class MainController {
                 User user = genie.verifyLogin(username, password);
 
                 if (user != null) {
-                    if (userControllers.containsKey(user.username)) {
+                    if (userControllers.containsKey(user.getUsername())) {
                         genie.showPopup("Error", "You are already logged in!", "OK");
                     }
                     else {
                         Stage newWindow = new Stage();
-                        newWindow.onCloseRequestProperty().set(event1 -> userControllers.remove(user.username));
-                        if (user.type == UserType.CUSTOMER) {
+                        newWindow.onCloseRequestProperty().set(event1 -> userControllers.remove(user.getUsername()));
+                        if (user.getType() == UserType.CUSTOMER) {
                             CustomerView customerView = new CustomerView();
                             CustomerController customerController = new CustomerController((Customer) user, customerView, newWindow);
-                            userControllers.put(user.username, customerController);
+                            userControllers.put(user.getUsername(), customerController);
                             newWindow.setTitle("Customer: Welcome " + username);
                             newWindow.setScene(new Scene(customerView.getView(), 800, 800));
                             newWindow.show();
                         }
-                        else if (user.type == UserType.RESTAURANT) {
+                        else if (user.getType() == UserType.RESTAURANT) {
                             RestaurantView restaurantView = new RestaurantView();
                             RestaurantController restaurantController = new RestaurantController((Restaurant) user, restaurantView, newWindow);
-                            userControllers.put(user.username, restaurantController);
+                            userControllers.put(user.getUsername(), restaurantController);
                             newWindow.setTitle("Restaurant: Welcome " + username);
                             newWindow.setScene(new Scene(restaurantView.getView(), 800, 800));
                             newWindow.show();
                         }
-                        else if (user.type == UserType.DA) {
+                        else if (user.getType() == UserType.DA) {
                             DAView daView = new DAView();
                             DAController daController = new DAController((DA) user, daView, newWindow);
-                            userControllers.put(user.username, daController);
+                            userControllers.put(user.getUsername(), daController);
                             newWindow.setTitle("DA: Welcome " + username);
                             newWindow.setScene(new Scene(daView.getView(), 800, 800));
                             newWindow.show();

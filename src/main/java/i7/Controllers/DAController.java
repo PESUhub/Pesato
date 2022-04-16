@@ -8,10 +8,12 @@ import javafx.stage.Stage;
 
 public class DAController extends UserController{
 
+    private DA da;
+
     public DAController(DA user, DAView view, Stage stage) {
         setView(view);
         this.stage = stage;
-        this.user = user;
+        this.da = user;
     }
 
     private void setView(DAView view) {
