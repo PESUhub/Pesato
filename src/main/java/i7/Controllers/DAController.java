@@ -1,25 +1,20 @@
 package i7.Controllers;
 
-
-import java.io.IOException;
-
-import i7.Models.Customer;
+import i7.Models.*;
+import i7.Views.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.stage.Stage;
-import i7.Views.*;
 
+public class DAController extends UserController{
 
-public class CustomerController extends UserController {
-    
-    public CustomerController(Customer user, CustomerView view, Stage stage) {
+    public DAController(DA user, DAView view, Stage stage) {
         setView(view);
         this.stage = stage;
         this.user = user;
     }
 
-    private void setView(CustomerView view) {
+    private void setView(DAView view) {
         view.logoutButton.setOnAction((EventHandler<ActionEvent>) new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
