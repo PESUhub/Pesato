@@ -1,11 +1,7 @@
 package i7.Controllers;
 
 import com.mongodb.*;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 
 import com.mongodb.client.model.UpdateOptions;
@@ -119,6 +115,23 @@ public class Genie {
         }
     }
 
+    public ArrayList<User> getUsersByType(UserType type) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        //get all users with type
+        FindIterable<Document> iterable = collection.find(eq("type", type.toString()));
+        ArrayList<User> users = new ArrayList<>();
+        iterable.forEach(doc -> {
+            if (type == UserType.CUSTOMER) {
+                users.add(new Customer(doc));
+            } else if (type == UserType.RESTAURANT) {
+                users.add(new Restaurant(doc));
+            } else if (type == UserType.DA) {
+                users.add(new DA(doc));
+            }
+        });
+        return users;
+    }
+
     public void updateUser(User user) {
         MongoCollection<Document> collection = database.getCollection("users");
         collection.replaceOne(eq("username", user.getUsername()), new Document(user.toDocument()));
@@ -219,20 +232,31 @@ public class Genie {
         return (max.getInteger("id") + 1);
     }
 
-    public String assignDA() {
-        MongoCollection<Document> collection = database.getCollection("users");
-        Document doc = collection.find(eq("occupied", false)).first();
+    public Order getOrder(int id) {
+        MongoCollection<Document> collection = database.getCollection("orders");
+        Document doc = collection.find(eq("id", id)).first();
         if (doc == null) {
             return null;
         }
+        return new Order(doc);
+    }
+
+    public String assignDA(Integer orderID) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        Document doc = collection.find(eq("occupied", false)).first();
+        if (doc == null) {
+            showPopup("Error", "No available delivery agents. Errors will propagate.", "close");
+            return null;
+        }
         DA da = new DA(doc);
-        String username = da.assignJob();
+        String username = da.assignJob(orderID);
         return username;
     }
 
-    public void setDAOccupancy(String username, Boolean occupied) {
+    public void setDAOccupancy(String username, Boolean occupied, Integer orderID) {
         MongoCollection<Document> collection = database.getCollection("users");
         collection.updateOne(eq("username", username), new Document("$set", new Document("occupied", occupied)));
+        collection.updateOne(eq("username", username), new Document("$set", new Document("orderID", orderID)));
     }
 
     public Wallet getWallet(String username) {
@@ -241,7 +265,61 @@ public class Genie {
         if (doc == null) {
             return null;
         }
-        return new Wallet(doc);
+        return new Wallet(doc.get("wallet", Document.class));
     }
 
+    public void updateWallet(Wallet wallet, String username) {
+        MongoCollection<Document> collection = database.getCollection("users");
+        collection.updateOne(eq("username", username), new Document("$set", new Document("wallet", wallet.toDocument())));
+    }
+
+    public void addOrder(Order order) {
+        MongoCollection<Document> collection = database.getCollection("orders");
+        collection.insertOne(new Document(order.toDocument()));
+    }
+
+    public void updateOrder(Order order) {
+        MongoCollection<Document> collection = database.getCollection("orders");
+        collection.updateOne(eq("id", order.getId()), new Document("$set", new Document(order.toDocument())));
+    }
+
+    public ArrayList<Order> getRestaurantPendingOrders(String restaurant) {
+        ArrayList<Order> orders = new ArrayList<>();
+        MongoCollection<Document> collection = database.getCollection("orders");
+        FindIterable<Document> iterable = collection.find(and(eq("resname", restaurant), or(eq("foodStatus", "ORDERED"), eq("foodStatus", "PREPARING"))));
+        iterable.forEach(item -> orders.add(new Order(item)));
+        return orders;
+    }
+
+    public ArrayList<Order> getRestaurantOrdersHistory(String restaurant) {
+        ArrayList<Order> orders = new ArrayList<>();
+        MongoCollection<Document> collection = database.getCollection("orders");
+        FindIterable<Document> iterable = collection.find(and(eq("resname", restaurant), or(not(eq("foodStatus", "ORDERED")), not(eq("foodStatus", "PREPARING")))));
+        iterable.forEach(item -> orders.add(new Order(item)));
+        return orders;
+    }
+
+    public ArrayList<Order> getDAOrdersHistory(String da) {
+        ArrayList<Order> orders = new ArrayList<>();
+        MongoCollection<Document> collection = database.getCollection("orders");
+        FindIterable<Document> iterable = collection.find(and(eq("daname", da), eq("foodStatus", "DELIVERED")));
+        iterable.forEach(item -> orders.add(new Order(item)));
+        return orders;
+    }
+
+    public ArrayList<Order> getCustomerCurrentOrders(String username) {
+        ArrayList<Order> orders = new ArrayList<>();
+        MongoCollection<Document> collection = database.getCollection("orders");
+        FindIterable<Document> iterable = collection.find(and(eq("custname", username), not(eq("foodStatus", "DELIVERED"))));
+        iterable.forEach(item -> orders.add(new Order(item)));
+        return orders;
+    }
+
+    public ArrayList<Order> getCustomerOrdersHistory(String username) {
+        ArrayList<Order> orders = new ArrayList<>();
+        MongoCollection<Document> collection = database.getCollection("orders");
+        FindIterable<Document> iterable = collection.find(and(eq("custname", username), eq("foodStatus", "DELIVERED")));
+        iterable.forEach(item -> orders.add(new Order(item)));
+        return orders;
+    }
 }

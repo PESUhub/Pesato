@@ -1,5 +1,6 @@
 package i7.Models;
 
+import i7.Controllers.Genie;
 import org.bson.Document;
 
 import java.util.Locale;
@@ -21,7 +22,7 @@ public abstract class User {
         this.phone = phone;
         this.address = address;
         this.type = type;
-        this.wallet = new Wallet(balance);
+        this.wallet = new Wallet(balance, this.username);
     }
 
     public User(Document document) {
@@ -31,7 +32,7 @@ public abstract class User {
         this.phone = document.getString("phone");
         this.address = document.getString("address");
         this.type = UserType.valueOf(document.getString("type").toUpperCase(Locale.ROOT));
-        this.wallet = new Wallet(document.get("wallet", Document.class));
+        this.wallet = Genie.getInstance().getWallet(this.username);
     }
 
     public Map<String, Object> toDocument() {

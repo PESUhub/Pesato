@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class DA extends User {
     private Boolean occupied;
+    private int orderID;
 
     public DA(String username, String password, String email, String phone, String address, double balance) {
         super(UserType.DA, username, password, email, phone, address, balance);
@@ -16,11 +17,13 @@ public class DA extends User {
     public DA(Document map) {
         super(map);
         this.occupied = map.getBoolean("occupied");
+        this.orderID = map.getInteger("orderID");
     }
 
     public Map<String, Object> toDocument() {
         Map<String, Object> document = super.toDocument();
         document.put("occupied", occupied);
+        document.put("orderID", orderID);
 
         return document;
     }
@@ -29,17 +32,23 @@ public class DA extends User {
         return occupied;
     }
 
-    public String assignJob() {
+    public String assignJob(Integer orderID) {
         if (occupied) { return null; }
         Genie g = Genie.getInstance();
-        g.setDAOccupancy(this.getUsername(), true);
+        g.setDAOccupancy(this.getUsername(), true, orderID);
+        this.orderID = orderID;
         occupied = true;
         return this.getUsername();
     }
 
     public void unassignJob() {
         Genie g = Genie.getInstance();
-        g.setDAOccupancy(this.getUsername(), false);
+        orderID = -1;
         occupied = false;
+        g.setDAOccupancy(this.getUsername(), false, -1);
+    }
+
+    public int getOrderID() {
+        return orderID;
     }
 }

@@ -3,10 +3,12 @@ package i7.Controllers;
 import java.io.IOException;
 import javafx.event.EventHandler;
 import java.util.HashMap;
+import java.util.Locale;
 
 import i7.Models.*;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
+import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import i7.Views.*;
@@ -47,10 +49,11 @@ public class MainController {
                         newWindow.onCloseRequestProperty().set(event1 -> userControllers.remove(user.getUsername()));
                         if (user.getType() == UserType.CUSTOMER) {
                             CustomerView customerView = new CustomerView();
-                            CustomerController customerController = new CustomerController((Customer) user, customerView, newWindow);
+                            Scene scene = new Scene(customerView.getView(), 1200, 1000);
+                            CustomerController customerController = new CustomerController((Customer) user, newWindow, scene, customerView);
                             userControllers.put(user.getUsername(), customerController);
                             newWindow.setTitle("Customer: Welcome " + username);
-                            newWindow.setScene(new Scene(customerView.getView(), 800, 800));
+                            newWindow.setScene(scene);
                             newWindow.show();
                         }
                         else if (user.getType() == UserType.RESTAURANT) {
@@ -58,7 +61,7 @@ public class MainController {
                             RestaurantController restaurantController = new RestaurantController((Restaurant) user, restaurantView, newWindow);
                             userControllers.put(user.getUsername(), restaurantController);
                             newWindow.setTitle("Restaurant: Welcome " + username);
-                            newWindow.setScene(new Scene(restaurantView.getView(), 800, 800));
+                            newWindow.setScene(new Scene(restaurantView.getView(), 1200, 1000));
                             newWindow.show();
                         }
                         else if (user.getType() == UserType.DA) {
@@ -66,7 +69,7 @@ public class MainController {
                             DAController daController = new DAController((DA) user, daView, newWindow);
                             userControllers.put(user.getUsername(), daController);
                             newWindow.setTitle("DA: Welcome " + username);
-                            newWindow.setScene(new Scene(daView.getView(), 800, 800));
+                            newWindow.setScene(new Scene(daView.getView(), 1200, 1000));
                             newWindow.show();
                         } else {
                             genie.showPopup("Error", "Invalid user type! Contact Dev", "OK");
@@ -138,7 +141,7 @@ public class MainController {
                     return;
                 }
 
-                UserType userType = UserType.valueOf(((javafx.scene.control.RadioButton) signupView.userTypeGroup.getSelectedToggle()).getText().toUpperCase());
+                UserType userType = UserType.valueOf(((RadioButton) signupView.userTypeGroup.getSelectedToggle()).getUserData().toString().toUpperCase(Locale.ROOT));
 
                 User user;
 

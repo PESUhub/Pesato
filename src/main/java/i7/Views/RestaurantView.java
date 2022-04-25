@@ -1,6 +1,8 @@
 package i7.Views;
 
+import i7.Models.FoodStatus;
 import i7.Models.MenuItem;
+import i7.Models.Order;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -13,9 +15,13 @@ import javafx.util.converter.IntegerStringConverter;
 public class RestaurantView {
     Parent view;
     public Button logoutButton;
+    public Button reloadButton;
 
     public Tab editMenuItemsTab;
+    public Tab walletTab;
+    public Tab ordersTab;
     public VBox editMenuItemsTabContent;
+    public VBox ordersTabContent;
 
     public TableView<MenuItem> miTable;
     public TableColumn<MenuItem, String> nameCol;
@@ -36,6 +42,13 @@ public class RestaurantView {
     public Button addButton;
 
 
+    public TableView<Order> oTable;
+    public TableColumn<Order, String> cnameCol;
+    public TableColumn<Order, FoodStatus> statusCol;
+    public TableColumn<Order, Button> prepareCol;
+    public TableColumn<Order, Button> doneCol;
+
+
     public RestaurantView() {
         view = createView();
     }
@@ -47,20 +60,29 @@ public class RestaurantView {
     public VBox createView() {
         VBox vBox = new VBox();
         vBox.getChildren().add(logoutButton = new Button("Logout"));
+        vBox.getChildren().add(reloadButton = new Button("Reload"));
+
+        ordersTabContent = new VBox();
+        ordersTabContent.getChildren().add(createOrdersTable());
 
         editMenuItemsTabContent = new VBox();
+        editMenuItemsTabContent.getChildren().addAll(createMiTable(), createAddMenuItemBox());
 
         editMenuItemsTab = new Tab("Edit Menu Items");
         editMenuItemsTab.setContent(editMenuItemsTabContent);
         editMenuItemsTab.setClosable(false);
 
-        editMenuItemsTabContent.getChildren().add(createMiTable());
-        editMenuItemsTabContent.getChildren().add(createAddMenuItemBox());
+        walletTab = new Tab("Wallet");
+        walletTab.setClosable(false);
+
+        ordersTab = new Tab("Orders");
+        ordersTab.setContent(ordersTabContent);
+        ordersTab.setClosable(false);
 
         tabPane = new TabPane();
-        tabPane.getTabs().addAll(editMenuItemsTab);
+        tabPane.getTabs().addAll(ordersTab, editMenuItemsTab, walletTab);
 
-        vBox.getChildren().add(tabPane);
+        vBox.getChildren().addAll(tabPane);
         return vBox;
     }
 
@@ -76,16 +98,16 @@ public class RestaurantView {
         vegCol = new TableColumn<MenuItem, CheckBox>("Veg");
         deleteCol = new TableColumn<MenuItem, Button>("Delete");
 
-        nameCol.setCellValueFactory(new PropertyValueFactory<MenuItem, String>("Name"));
+        nameCol.setCellValueFactory(item -> item.getValue().nameProperty());
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        descCol.setCellValueFactory(new PropertyValueFactory<MenuItem, String>("Description"));
+        descCol.setCellValueFactory(item -> item.getValue().descriptionProperty());
         descCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        priceCol.setCellValueFactory(new PropertyValueFactory<MenuItem, Double>("Price"));
+        priceCol.setCellValueFactory(item -> item.getValue().priceProperty());
         priceCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-        ratingCol.setCellValueFactory(new PropertyValueFactory<MenuItem, Integer>("Rating"));
+        ratingCol.setCellValueFactory(item -> item.getValue().ratingProperty());
         ratingCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
 
         nameCol.setMinWidth(75);
@@ -119,5 +141,30 @@ public class RestaurantView {
 
         hBox.getChildren().addAll(nameField, descField, priceField, ratingField, vegCheckBox, addButton);
         return hBox;
+    }
+
+    public TableView<Order> createOrdersTable() {
+        oTable = new TableView<Order>();
+        oTable.setEditable(false);
+
+        // Column headings in the tableChron.
+        cnameCol = new TableColumn<Order, String>("Customer Name");
+        statusCol = new TableColumn<Order, FoodStatus>("Status");
+        prepareCol = new TableColumn<Order, Button>("Prepare");
+        doneCol = new TableColumn<Order, Button>("Done");
+
+        cnameCol.setCellValueFactory(new PropertyValueFactory<>("custname"));
+        statusCol.setCellValueFactory(new PropertyValueFactory<>("foodStatus"));
+
+
+        cnameCol.setMinWidth(75);
+        statusCol.setMinWidth(100);
+        prepareCol.setMinWidth(50);
+        doneCol.setMinWidth(50);
+
+        oTable.getColumns().addAll(cnameCol, statusCol, prepareCol, doneCol);
+        oTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        return oTable;
     }
 }
