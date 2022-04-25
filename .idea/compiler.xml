@@ -6,11 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Pesato" />
+        <module name="pesato" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Pesato" target="11" />
+      <module name="pesato" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
